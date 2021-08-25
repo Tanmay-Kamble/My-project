@@ -1,0 +1,90 @@
+import math
+
+import pygame
+l1=int(input("fixed l1"))
+l2=int(input("input l2"))
+l3=int(input("l3"))
+l4=int(input("output l4"))
+s= min(l1,l2,l3,l4)
+l= max(l1,l2,l3,l4)
+p_q= l1+l2+l3+l4 - s -l
+grashof_link = (s+l < p_q)
+double_rocker = (grashof_link and s==l3) or (not grashof_link)
+print(grashof_link, double_rocker)
+if(l1+l2+l3+l4-(2*l)<=0):
+    print("invlid")
+if((not(grashof_link)) and l==l3):
+    thetamin= (math.acos(((l2**2)+(l1**2)-((l3-l4)**2))/(2*l1*l2)))
+    thetamax=2*math.pi - thetamin
+else:
+    thetamax = (math.acos(((l2**2)+(l1**2)-((l3+l4)**2))/(2*l1*l2)))
+    try:
+        thetamin = math.acos(((l2**2)+(l1**2)-((l3-l4)**2))/(2*l1*l2))
+    except:
+        thetamin = -thetamax
+
+pygame.init()
+screen_size = 500
+surface = pygame.display.set_mode((screen_size, screen_size)) # window size and pixels width/height
+
+# animation state variables
+angle_per_step = .05  # degrees
+step = 0
+w=math.pi
+# animation loop
+theta4 =0
+flip= 1
+
+flop= 1
+cy = screen_size // 2 # center of rotation
+cx = screen_size//2 -100
+
+while True:
+
+    # erase background each time
+    surface.fill((0, 0, 0))  # erase surface memory before we draw new things
+
+    # calculate and draw rotating line
+    theta2= (thetamax+thetamin)/2 +(thetamax-thetamin)*math.cos(w*step)/2
+    if((theta2==thetamin)or(theta2==thetamax)):
+        print(flop)
+        temp_flop = flop*(grashof_link) + (-flop*((not grashof_link) and (l != l3)))
+        if(temp_flop!=0):
+            flop=-flop
+        print("flop")
+    a= math.sin(theta2*flop)
+    b= math.cos(theta2*flop)-(l1/l2)
+    c= -(l1/l4)*math.cos(theta2*flop) + ((l1**2)+(l2**2)+(l4**2)-(l3**2))/(2*l2*l4)
+
+    try:
+        temp = math.sqrt((a**2)+(b**2)-(c**2))
+
+        theta4 = 2*flop*math.atan((a -temp*flip) / (b + c))
+        if (temp < 0.001):
+            flip = -flip
+            print(flip, "flip")
+    except:
+        theta4 = 2*flop*math.atan(a / (b + c))
+        flip = -flip
+        print(flip)
+    x2 = l2*5*math.cos(theta2)
+    y2 = l2*5*math.sin(theta2)
+    x4 = l4*5*math.cos(theta4)
+    y4 = l4*5*math.sin(theta4)
+    pygame.draw.line(surface, (255,255,0), ((cx),(cy)),((cx+x2),(cy-y2)), 2)
+    pygame.draw.line(surface, (255, 255, 0), ((cx+l1*5), (cy)), ((cx+l1*5 + x4), (cy - y4)), 2)
+    pygame.draw.line(surface, (255, 255, 0), ((cx+x2),(cy-y2)), ((cx+l1*5 + x4), (cy - y4)), 2)
+    pygame.draw.circle(surface, (255,0,0), ((cx+x2),(cy-y2)), 4,2)
+    pygame.draw.circle(surface, (255, 0, 0), ((cx+l1*5 + x4), (cy - y4)), 4, 2)
+
+    # update to display, await clock check for quit advance animation state
+    pygame.display.update()
+    pygame.time.Clock().tick(60)
+
+    if pygame.event.peek(pygame.QUIT):  # detect user quit
+        break
+
+    step += 0.004  # advance state of animation
+
+
+pygame.quit()  # close window"""
